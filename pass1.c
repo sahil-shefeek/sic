@@ -2,9 +2,49 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main() {
+#define SYM_SIZE 25
+#define OP_SIZE 25
+#define OPTAB_LEN 25
+#define SYMTAB_LEN 25
+
+typedef struct symtab {
+  char name[SYM_SIZE];
+  int address;
+} symtab_t;
+
+typedef struct optab_entry {
+  char opcode[OP_SIZE];
+  int machine_code;
+} optab_entry_t;
+
+typedef struct optab {
+  optab_entry_t *entries;
+  int length;
+} optab_t;
+
+void build_optab(char *file_name, optab_t *dest) {
+  FILE *optab_file = fopen(file_name, "r");
+  char mnemonic[OP_SIZE];
+  int machine_code, i = 0;
+  fscanf(optab_file, "%s\t%d\n", mnemonic, &machine_code);
+  while (feof(optab_file) == 0) {
+    optab_entry_t entry;
+    strcpy(entry.opcode, mnemonic);
+    entry.machine_code = machine_code;
+    dest->entries[i++] = entry;
+    fscanf(optab_file, "%s\t%d\n", mnemonic, &machine_code);
+  }
+  dest->length = i;
+  fclose(optab_file);
+}
+
+int main(int argc, char *argv[]) {
   int locctr = 0, start = 0;
-  FILE *optab = fopen("optab.txt", "r");
+  optab_t optab;
+  optab.entries = (optab_entry_t *)malloc(OPTAB_LEN * sizeof(optab_entry_t));
+  build_optab(optab_file_name, optab);
+
+  // FILE *optab = fopen("optab.txt", "r");
   FILE *input = fopen("input.txt", "r");
   FILE *symtab = fopen("symtab.txt", "w");
   FILE *ifile = fopen("ifile.txt", "w");
@@ -15,9 +55,9 @@ int main() {
     start = atoi(operand);
     locctr = start;
     fprintf(ifile, "%s\t%s\t%s\n", label, opcode, operand);
+    fscanf(input, "%s\t%s\t%s", label, opcode, operand);
   }
   printf("Start is: %d\n", start);
-  fscanf(input, "%s\t%s\t%s", label, opcode, operand);
   while (strcmp(opcode, "END") != 0) {
     fprintf(ifile, "%d\t", locctr);
     if (strcmp("**", label) != 0) {
