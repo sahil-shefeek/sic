@@ -1,8 +1,6 @@
-#include <arm/types.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/_types/_null.h>
 
 #define SYM_SIZE 25
 #define OP_SIZE 25
